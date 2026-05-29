@@ -208,8 +208,7 @@ models/training_logs/
 results/metrics/
 results/figures/
 ```
-
-Lưu ý: `.gitignore` hiện bỏ qua các file lớn như `.csv`, `.json`, `.pkl`, `.png` và `.safetensors`. Khi chia sẻ repo, cần cung cấp riêng dữ liệu, checkpoint và kết quả nếu muốn người khác chạy app ngay mà không huấn luyện lại.
+Toàn bộ kết quả lưu tại: [Google Drive](https://drive.google.com/drive/folders/1LZFX9i4wC-EZ7BlLKaV8zVZRpqlc736M)
 
 ## Ghi chú triển khai
 
