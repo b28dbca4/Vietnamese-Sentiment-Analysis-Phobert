@@ -1,0 +1,12 @@
+# ─ Bắt buộc cho app nâng cấp (ngoài các lib bạn đã có) ─
+transformers>=4.38
+torch>=2.0
+scikit-learn>=1.3
+joblib>=1.3
+pandas>=2.0
+numpy>=1.24
+streamlit>=1.32
+
+# ─ Tuỳ chọn (app vẫn chạy nếu thiếu — phương pháp tương ứng tự ẩn) ─
+lime>=0.2.0.1        # cho phương pháp giải thích LIME
+captum>=0.7.0        # cho Integrated Gradients (chỉ transformer)

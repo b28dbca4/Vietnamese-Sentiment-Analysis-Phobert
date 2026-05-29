@@ -7,6 +7,14 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+*.png
+*.json
+*.pkl
+*.safetensors 
+*.csv
+.agents/
+.codex/
+.vscode/
 .Python
 build/
 develop-eggs/

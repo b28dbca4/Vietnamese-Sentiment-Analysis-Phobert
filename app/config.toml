@@ -1,0 +1,17 @@
+# Pin Streamlit's base theme to "light" so the app's own CSS theming (and the
+# in-app Lab dark toggle) is the single source of truth. Without this, a user's
+# browser set to dark mode makes Streamlit pick its own dark base, whose default
+# text colours fight our CSS and can make labels/inputs unreadable.
+#
+# Place this file at:  <repo_root>/.streamlit/config.toml
+
+[theme]
+base = "light"
+primaryColor = "#2563eb"
+backgroundColor = "#faf9f6"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#1a1a1a"
+font = "sans serif"
+
+[client]
+showErrorDetails = true
