@@ -9,8 +9,6 @@
 
 Dự án xây dựng hệ thống phân tích cảm xúc cho bộ dữ liệu IMDb 50K Movie Reviews. Pipeline bao gồm mô hình baseline TF-IDF + Logistic Regression, ba mô hình Transformer fine-tuning (DistilBERT, BERT-base, RoBERTa), đánh giá định lượng, phân tích lỗi và ứng dụng Streamlit phục vụ suy diễn thời gian thực.
 
-Notebook `01_EDA_Preprocessing.ipynb` đã hoàn thành bước EDA, làm sạch nhẹ văn bản và chia dữ liệu theo tỉ lệ 80/10/10. Các bước còn lại sử dụng trực tiếp dữ liệu đã xử lý trong `data/processed/`.
-
 ## Dữ liệu
 
 - Nguồn: IMDb Dataset of 50K Movie Reviews.
