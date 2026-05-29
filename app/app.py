@@ -611,68 +611,68 @@ def _metrics_for(key: str, summary: Dict) -> Dict[str, str]:
     return out
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  PAGE · Error Analysis
-# ─────────────────────────────────────────────────────────────────────────────
-def page_errors(engine: Optional[InferenceEngine], err: Optional[str]) -> None:
-    section_header("Error Analysis",
-                   "Where does the model struggle? Mine false positives and "
-                   "false negatives from the held-out test split.")
-    if engine is None:
-        st.error(f"Model is not ready: {err}")
-        return
-    test_path = os.path.join(getattr(config, "PROCESSED_DIR",
-                             ROOT_DIR / "data" / "processed"), "test.csv")
-    if not os.path.exists(test_path):
-        st.info("test.csv not found in data/processed/.")
-        return
+# # ─────────────────────────────────────────────────────────────────────────────
+# #  PAGE · Error Analysis
+# # ─────────────────────────────────────────────────────────────────────────────
+# def page_errors(engine: Optional[InferenceEngine], err: Optional[str]) -> None:
+#     section_header("Error Analysis",
+#                    "Where does the model struggle? Mine false positives and "
+#                    "false negatives from the held-out test split.")
+#     if engine is None:
+#         st.error(f"Model is not ready: {err}")
+#         return
+#     test_path = os.path.join(getattr(config, "PROCESSED_DIR",
+#                              ROOT_DIR / "data" / "processed"), "test.csv")
+#     if not os.path.exists(test_path):
+#         st.info("test.csv not found in data/processed/.")
+#         return
 
-    n = st.slider("Sample size (kept small for speed)", 50, 500, 150, 50)
-    if st.button("Run error analysis", type="primary"):
-        df = pd.read_csv(test_path)
-        rcol = "review" if "review" in df.columns else df.columns[0]
-        lcol = ("sentiment" if "sentiment" in df.columns
-                else "label" if "label" in df.columns else df.columns[-1])
-        df = df.sample(min(n, len(df)), random_state=42).reset_index(drop=True)
-        key = engine.default_model()
-        recs = []
-        bar = st.progress(0.0)
-        for i, row in df.iterrows():
-            p = engine.predict(str(row[rcol]), key)
-            truth = str(row[lcol]).lower()
-            truth = "positive" if "pos" in truth or truth == "1" else "negative"
-            recs.append({"review": str(row[rcol]), "truth": truth,
-                         "pred": p.label, "confidence": p.confidence,
-                         "tokens": p.num_tokens})
-            bar.progress((i + 1) / len(df))
-        bar.empty()
-        res = pd.DataFrame(recs)
-        st.session_state.err_df = res
+#     n = st.slider("Sample size (kept small for speed)", 50, 500, 150, 50)
+#     if st.button("Run error analysis", type="primary"):
+#         df = pd.read_csv(test_path)
+#         rcol = "review" if "review" in df.columns else df.columns[0]
+#         lcol = ("sentiment" if "sentiment" in df.columns
+#                 else "label" if "label" in df.columns else df.columns[-1])
+#         df = df.sample(min(n, len(df)), random_state=42).reset_index(drop=True)
+#         key = engine.default_model()
+#         recs = []
+#         bar = st.progress(0.0)
+#         for i, row in df.iterrows():
+#             p = engine.predict(str(row[rcol]), key)
+#             truth = str(row[lcol]).lower()
+#             truth = "positive" if "pos" in truth or truth == "1" else "negative"
+#             recs.append({"review": str(row[rcol]), "truth": truth,
+#                          "pred": p.label, "confidence": p.confidence,
+#                          "tokens": p.num_tokens})
+#             bar.progress((i + 1) / len(df))
+#         bar.empty()
+#         res = pd.DataFrame(recs)
+#         st.session_state.err_df = res
 
-    res = st.session_state.get("err_df")
-    if res is None:
-        return
-    acc = (res["pred"] == res["truth"]).mean()
-    fp = res[(res["truth"] == "negative") & (res["pred"] == "positive")]
-    fn = res[(res["truth"] == "positive") & (res["pred"] == "negative")]
-    m = st.columns(3)
-    m[0].metric("Sample accuracy", f"{acc*100:.1f}%")
-    m[1].metric("False positives", len(fp))
-    m[2].metric("False negatives", len(fn))
+#     res = st.session_state.get("err_df")
+#     if res is None:
+#         return
+#     acc = (res["pred"] == res["truth"]).mean()
+#     fp = res[(res["truth"] == "negative") & (res["pred"] == "positive")]
+#     fn = res[(res["truth"] == "positive") & (res["pred"] == "negative")]
+#     m = st.columns(3)
+#     m[0].metric("Sample accuracy", f"{acc*100:.1f}%")
+#     m[1].metric("False positives", len(fp))
+#     m[2].metric("False negatives", len(fn))
 
-    st.markdown(C.insight_html(
-        f"Errors skew toward {'false positives' if len(fp) > len(fn) else 'false negatives'}. "
-        f"Misclassified reviews average {res[res.pred != res.truth]['tokens'].mean():.0f} tokens "
-        f"vs {res[res.pred == res.truth]['tokens'].mean():.0f} for correct ones."
-    ), unsafe_allow_html=True)
+#     st.markdown(C.insight_html(
+#         f"Errors skew toward {'false positives' if len(fp) > len(fn) else 'false negatives'}. "
+#         f"Misclassified reviews average {res[res.pred != res.truth]['tokens'].mean():.0f} tokens "
+#         f"vs {res[res.pred == res.truth]['tokens'].mean():.0f} for correct ones."
+#     ), unsafe_allow_html=True)
 
-    t1, t2 = st.tabs([f"False positives ({len(fp)})", f"False negatives ({len(fn)})"])
-    with t1:
-        st.dataframe(fp.sort_values("confidence", ascending=False),
-                     use_container_width=True, hide_index=True)
-    with t2:
-        st.dataframe(fn.sort_values("confidence", ascending=False),
-                     use_container_width=True, hide_index=True)
+#     t1, t2 = st.tabs([f"False positives ({len(fp)})", f"False negatives ({len(fn)})"])
+#     with t1:
+#         st.dataframe(fp.sort_values("confidence", ascending=False),
+#                      use_container_width=True, hide_index=True)
+#     with t2:
+#         st.dataframe(fn.sort_values("confidence", ascending=False),
+#                      use_container_width=True, hide_index=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -963,10 +963,15 @@ def sidebar(engine: Optional[InferenceEngine]) -> str:
             <div class="sidebar-subtitle">Intelligence Platform</div></div>
             <div class="sidebar-divider"></div>
         """, unsafe_allow_html=True)
+        # page = st.radio("Navigation", [
+        #     "🔍  Analyze", "⚔️  Model Arena", "🧠  Explainability",
+        #     "📦  Batch Intelligence", "📊  Performance", "🔬  Comparison",
+        #     "🩺  Error Analysis", "ℹ️  About",
+        # ], label_visibility="collapsed")
         page = st.radio("Navigation", [
             "🔍  Analyze", "⚔️  Model Arena", "🧠  Explainability",
             "📦  Batch Intelligence", "📊  Performance", "🔬  Comparison",
-            "🩺  Error Analysis", "ℹ️  About",
+            "ℹ️  About",
         ], label_visibility="collapsed")
         st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
         st.toggle("Lab (dark) theme", key="lab_theme")
