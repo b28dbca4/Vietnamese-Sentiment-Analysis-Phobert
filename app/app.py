@@ -56,8 +56,45 @@ def load_css() -> None:
     if css.exists():
         st.markdown(f"<style>{css.read_text(encoding='utf-8')}</style>",
                     unsafe_allow_html=True)
-    if st.session_state.get("lab_theme"):
+    is_dark = bool(st.session_state.get("lab_theme"))
+    if is_dark:
         st.markdown(f"<style>{_DARK_OVERRIDES}</style>", unsafe_allow_html=True)
+    text_color = "#ffffff" if is_dark else "#111827"
+    input_bg = "#0d172b" if is_dark else "#ffffff"
+    border_color = "#2a3a5a" if is_dark else "#ded8cb"
+    placeholder_color = "#8094b8" if is_dark else "#6b7280"
+    st.markdown(
+        f"""<style>
+        .stApp .stTextArea label, .stApp .stTextArea label p,
+        .stApp .stToggle label, .stApp .stToggle label p,
+        .stApp .theme-sync-label,
+        .stApp [class*=\"stWidgetLabel\"] p,
+        .stApp [data-testid=\"stCaptionContainer\"],
+        .stApp [data-testid=\"stCaptionContainer\"] * {{
+            color: {text_color} !important;
+            -webkit-text-fill-color: {text_color} !important;
+            opacity: 1 !important;
+        }}
+        .stApp textarea, .stApp textarea:focus,
+        .stApp .stTextArea textarea, .stApp .stTextArea textarea:focus,
+        .stApp [data-testid=\"stTextArea\"] textarea,
+        .stApp [data-testid=\"stTextArea\"] textarea:focus {{
+            background: {input_bg} !important;
+            color: {text_color} !important;
+            -webkit-text-fill-color: {text_color} !important;
+            caret-color: {text_color} !important;
+            border-color: {border_color} !important;
+        }}
+        .stApp textarea::placeholder,
+        .stApp .stTextArea textarea::placeholder,
+        .stApp [data-testid=\"stTextArea\"] textarea::placeholder {{
+            color: {placeholder_color} !important;
+            -webkit-text-fill-color: {placeholder_color} !important;
+            opacity: 1 !important;
+        }}
+        </style>""",
+        unsafe_allow_html=True,
+    )
 
 
 @st.cache_resource(show_spinner="Booting inference engine…")
@@ -165,14 +202,37 @@ def page_analyze(engine: Optional[InferenceEngine], err: Optional[str]) -> None:
 
     c1, c2 = st.columns([4, 1])
     run = c1.button("Analyze Sentiment", type="primary", use_container_width=True)
-    explain_too = c2.toggle("Explain", value=True,
-                            help="Run leave-one-out explanation with the prediction")
+    c2.markdown("<div class=\"theme-sync-label\">Explain</div>", unsafe_allow_html=True)
+    explain_too = c2.toggle(
+        "Explain",
+        value=True,
+        help="Run leave-one-out explanation with the prediction",
+        label_visibility="collapsed",
+    )
 
     if run:
         if engine is None:
             st.error(f"Model is not ready: {err}")
         elif not review.strip():
-            st.warning("Enter a review before analyzing.")
+            is_dark = bool(st.session_state.get("lab_theme"))
+            warning_color = "#ffffff" if is_dark else "#dc2626"
+            warning_bg = "rgba(245, 158, 11, 0.12)" if is_dark else "#fff7ed"
+            warning_border = "#f59e0b" if is_dark else "#fed7aa"
+            st.markdown(
+                f"""
+                <div class="theme-empty-warning" style="
+                    display:flex; align-items:center; gap:0.55rem;
+                    padding:0.75rem 1rem; margin:0.65rem 0 0.25rem 0;
+                    border:1px solid {warning_border}; border-radius:8px;
+                    background:{warning_bg}; color:{warning_color};
+                    -webkit-text-fill-color:{warning_color}; font-weight:800;
+                " >
+                    <span style="color:{warning_color};-webkit-text-fill-color:{warning_color};">⚠</span>
+                    <span>Enter a review before analyzing.</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
         else:
             _run_single(engine, review, explain_too)
 
@@ -756,12 +816,6 @@ def page_about() -> None:
           faithful↔approximate spectrum, all on one green-for-positive /
           red-for-negative scale:</p>
           {_METHOD_NOTES}
-          <p style="margin-top:0.6rem;"><b>Honesty by design:</b> word
-          contributions are <i>computed</i>, never hard-coded; occlusion scores
-          the logit margin to avoid probability saturation; and the system flags
-          mixed-signal / low-confidence cases for human review instead of
-          pretending to "detect sarcasm".</p>
-        </div>
     """, unsafe_allow_html=True)
 
     # 6) Expected metrics
@@ -870,15 +924,31 @@ _DARK_OVERRIDES = """
 .section-heading h1{color:#f5f9ff !important;}
 .section-heading p, .main [data-testid="stCaptionContainer"], .main [data-testid="stCaptionContainer"] *{color:var(--color-text-secondary) !important;}
 
-/* TEXTAREA / INPUT — high specificity beats the original #000 rule */
-.stApp .main .stTextArea textarea,
-.stApp .main .stTextInput input,
-.stApp .main .stNumberInput input{
-  background:#0d172b !important;color:#eaf1fb !important;
-  -webkit-text-fill-color:#eaf1fb !important;caret-color:#eaf1fb !important;border-color:#2a3a5a !important;}
-.stApp .main .stTextArea textarea::placeholder,
-.stApp .main .stTextInput input::placeholder{
-  color:#8094b8 !important;-webkit-text-fill-color:#8094b8 !important;opacity:1 !important;}
+/* TEXTAREA / INPUT — force readable text in Lab dark theme */
+.stApp textarea,
+.stApp textarea:focus,
+.stApp .stTextArea textarea,
+.stApp .stTextArea textarea:focus,
+.stApp [data-testid="stTextArea"] textarea,
+.stApp [data-testid="stTextArea"] textarea:focus,
+.stApp .stTextInput input,
+.stApp .stTextInput input:focus,
+.stApp .stNumberInput input,
+.stApp .stNumberInput input:focus{
+  background:#0d172b !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  caret-color:#ffffff !important;
+  border-color:#2a3a5a !important;
+}
+.stApp textarea::placeholder,
+.stApp .stTextArea textarea::placeholder,
+.stApp [data-testid="stTextArea"] textarea::placeholder,
+.stApp .stTextInput input::placeholder{
+  color:#8094b8 !important;
+  -webkit-text-fill-color:#8094b8 !important;
+  opacity:1 !important;
+}
 
 /* SELECTBOX */
 .stApp .main .stSelectbox div[data-baseweb="select"] > div{background:#0d172b !important;border-color:#2a3a5a !important;}
@@ -887,15 +957,16 @@ div[data-baseweb="popover"] [role="option"], div[data-baseweb="popover"] li{back
 div[data-baseweb="popover"] [role="option"]:hover, div[data-baseweb="popover"] li:hover{background:#1b2a48 !important;}
 
 /* WIDGET LABELS (Review text, Explain, Model, Method, slider…) */
-.stApp .main .stTextArea label, .stApp .main .stTextArea label p,
-.stApp .main .stTextInput label, .stApp .main .stTextInput label p,
+.stApp .stTextArea label, .stApp .stTextArea label p,
+.stApp .stTextInput label, .stApp .stTextInput label p,
 .stApp .main .stSelectbox label, .stApp .main .stSelectbox label p,
 .stApp .main .stSlider label, .stApp .main .stSlider label p,
 .stApp .main .stRadio label, .stApp .main .stRadio label p,
 .stApp .main .stCheckbox label, .stApp .main .stCheckbox label p,
-.stApp .main .stToggle label, .stApp .main .stToggle label p,
+.stApp .stToggle label, .stApp .stToggle label p,
 .stApp .main .stFileUploader label, .stApp .main .stFileUploader label p,
-.stApp .main [class*="stWidgetLabel"] p{color:#eaf1fb !important;opacity:1 !important;}
+.stApp .main [class*="stWidgetLabel"] p,
+.stApp [data-testid="stCaptionContainer"], .stApp [data-testid="stCaptionContainer"] *{color:var(--color-text) !important;-webkit-text-fill-color:var(--color-text) !important;opacity:1 !important;}
 
 /* EXPANDERS */
 .stApp .main .stExpander{background:#101a30 !important;border:1px solid #26334f !important;}

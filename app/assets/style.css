@@ -1040,6 +1040,7 @@ div[data-baseweb="popover"] li:hover{
 .main .stCheckbox [data-baseweb="checkbox"] div,
 .main .stToggle [data-baseweb="checkbox"] div{ border-color: var(--color-border) !important; }
 
+
 /* --- code / pre --- */
 .main pre{ border-radius: var(--radius-md); }
 .main pre, .main code:not(.xai-missing code):not(.flow-node code){ color: var(--color-text) !important; }
