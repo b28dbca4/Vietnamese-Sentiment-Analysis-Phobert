@@ -63,6 +63,9 @@ def load_css() -> None:
     input_bg = "#0d172b" if is_dark else "#ffffff"
     border_color = "#2a3a5a" if is_dark else "#ded8cb"
     placeholder_color = "#8094b8" if is_dark else "#6b7280"
+    panel_bg = "#0d172b" if is_dark else "#ffffff"
+    panel_hover = "#16223c" if is_dark else "#f9fafb"
+    panel_border = "#2a3a5a" if is_dark else "#ded8cb"
     st.markdown(
         f"""<style>
         .stApp .stTextArea label, .stApp .stTextArea label p,
@@ -74,6 +77,58 @@ def load_css() -> None:
             color: {text_color} !important;
             -webkit-text-fill-color: {text_color} !important;
             opacity: 1 !important;
+        }}
+        .stApp .main h4,
+        .stApp .main h5,
+        .stApp .main h6,
+        .stApp .xai-method-block,
+        .stApp .xai-method-block strong {{
+            color: {text_color} !important;
+            -webkit-text-fill-color: {text_color} !important;
+        }}
+        .stApp .method-notes-box,
+        .stApp .method-notes-box * {{
+            color: {text_color} !important;
+            -webkit-text-fill-color: {text_color} !important;
+        }}
+        .stApp .method-notes-box {{
+            background: {input_bg} !important;
+            border: 1px solid {border_color} !important;
+            border-radius: 8px;
+            padding: 1rem 1.1rem;
+            line-height: 1.65;
+        }}
+        .stApp .stExpander,
+        .stApp [data-testid="stExpander"] {{
+            background: {panel_bg} !important;
+            border: 1px solid {panel_border} !important;
+            border-radius: 8px !important;
+        }}
+        .stApp .stExpander summary,
+        .stApp .stExpander details > summary,
+        .stApp [data-testid="stExpander"] summary {{
+            background: {panel_bg} !important;
+            color: {text_color} !important;
+            -webkit-text-fill-color: {text_color} !important;
+        }}
+        .stApp .stExpander summary:hover,
+        .stApp [data-testid="stExpander"] summary:hover {{
+            background: {panel_hover} !important;
+        }}
+        .stApp .stExpander summary p,
+        .stApp .stExpander summary span,
+        .stApp .stExpander summary svg,
+        .stApp [data-testid="stExpander"] summary p,
+        .stApp [data-testid="stExpander"] summary span,
+        .stApp [data-testid="stExpander"] summary svg {{
+            color: {text_color} !important;
+            fill: {text_color} !important;
+            -webkit-text-fill-color: {text_color} !important;
+        }}
+        .stApp .stExpander details > div,
+        .stApp [data-testid="stExpanderDetails"] {{
+            background: {panel_bg} !important;
+            color: {text_color} !important;
         }}
         .stApp textarea, .stApp textarea:focus,
         .stApp .stTextArea textarea, .stApp .stTextArea textarea:focus,
@@ -90,6 +145,14 @@ def load_css() -> None:
         .stApp [data-testid=\"stTextArea\"] textarea::placeholder {{
             color: {placeholder_color} !important;
             -webkit-text-fill-color: {placeholder_color} !important;
+            opacity: 1 !important;
+        }}
+        section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+        section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] *,
+        section[data-testid="stSidebar"] .sidebar-model-info,
+        section[data-testid="stSidebar"] .sidebar-model-info * {{
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
             opacity: 1 !important;
         }}
         </style>""",
@@ -452,7 +515,7 @@ def page_explain(engine: Optional[InferenceEngine], err: Optional[str]) -> None:
                         placeholder="Enter a movie review to explain…")
 
     with st.expander("How each method works (and how much to trust it)", expanded=False):
-        st.markdown(_METHOD_NOTES, unsafe_allow_html=True)
+        st.markdown(f"<div class=\"method-notes-box\">{_METHOD_NOTES}</div>", unsafe_allow_html=True)
 
     cc1, cc2 = st.columns([2, 1])
     go = cc1.button("Explain", type="primary", use_container_width=True)
