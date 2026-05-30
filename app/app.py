@@ -1069,7 +1069,7 @@ def sidebar(engine: Optional[InferenceEngine]) -> str:
                         '</div>', unsafe_allow_html=True)
         st.markdown('<div class="sidebar-divider"></div>'
                     '<div style="font-size:0.7rem;color:#475569;font-family:var(--font-mono);">'
-                    'v2.0 · Final Project · 2025</div>', unsafe_allow_html=True)
+                    'v1.0 · Final Project · 2026</div>', unsafe_allow_html=True)
     return page
 
 
